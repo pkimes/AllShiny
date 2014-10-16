@@ -2,7 +2,17 @@
 #'
 #' @author Patrick Kimes
 
+
+##necessary packages
 library(shiny)
+library(devtools)
+install_github("pkimes/sigclust2")
+library(sigclust2)
+
+
+##functions for setting simulation parameters
+source("helpers.R")
+
 
 ## Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -10,10 +20,33 @@ shinyServer(function(input, output) {
     data <- reactive({
         input$simulate
         isolate(
-            matrix(rnorm(input$n * input$p,
-                         mean=input$delta),
-                   input$n, input$p)
-            )
+            if (input$K == 1) {
+                matrix(rnorm(input$n * input$p,
+                             mean=input$delta),
+                       input$n, input$p)
+            } else if (input$K == 2) {
+                rbind(
+                    matrix(rnorm(input$n * input$p,
+                                 mean=input$delta),
+                           input$n, input$p),
+                    matrix(rnorm(input$n * input$p,
+                                 mean=-input$delta),
+                           input$n, input$p)
+                )
+            } else {
+               rbind(
+                    matrix(rnorm(input$n * input$p,
+                                 mean = input$delta),
+                           input$n, input$p),
+                    matrix(rnorm(input$n * input$p,
+                                 mean = -input$delta),
+                           input$n, input$p),
+                    matrix(rnorm(input$n * input$p,
+                                 mean = 0),
+                           input$n, input$p)
+               )
+           }
+        )
     })
     
     output$raw_plot <- renderPlot({
@@ -25,6 +58,11 @@ shinyServer(function(input, output) {
         plot(pca$x[, 1:2])
     })
 
+    output$shc_plot <- renderPlot({
+        out <- shc(data(), "euclidean", "ward.D2")
+        plot(out)
+    })
+    
     output$arrangements <- renderUI({
         switch(input$K,
                "1" = selectInput("arr",

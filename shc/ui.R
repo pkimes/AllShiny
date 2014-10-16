@@ -4,14 +4,13 @@
 
 library(shiny)
 
-
 shinyUI(fluidPage(
     titlePanel("Significance of Hierarchical Clustering"),
     fluidRow(
         column(
             4,
             ##separate pre-set, manual settings using tabs
-            h3("Parameters"),
+            h3("Data Parameters"),
             wellPanel(
                 tabsetPanel(
                     type="tabs",
@@ -76,15 +75,20 @@ shinyUI(fluidPage(
                 ## img(src="UNC_Lineberger.jpg", width=200)
             )
         ),
-        column(
-            4,
-            h3("Raw Data", align="center"),
-            plotOutput("raw_plot", width="100%")
-        ),
+        ## column(
+        ##     2,
+        ##     h3("Raw Data", align="center"),
+        ##     plotOutput("raw_plot", width="100%")
+        ## ),
         column(
             4,
             h3("PCA Data", align="center"),
             plotOutput("pca_plot", width="100%")
+        ),
+        column(
+            4,
+            h3("clustering", align="center"),
+            plotOutput("shc_plot", width="100%")
         )
     )
     ## br(),
