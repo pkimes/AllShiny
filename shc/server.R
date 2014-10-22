@@ -4,87 +4,77 @@
 
 
 ##necessary packages
-library(shiny)
-library(devtools)
-install_github("pkimes/sigclust2")
-library(sigclust2)
+library("shiny")
+library("devtools")
+library("ggplot2")
+library("GGally")
+##install_github("pkimes/sigclust2")
+library("sigclust2")
 
 
 ##functions for setting simulation parameters
+source("simulator.R")
 source("helpers.R")
 
 
 ## Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
+    ##data for analysis
     data <- reactive({
         input$simulate
         isolate(
-            if (input$K == 1) {
-                matrix(rnorm(input$n * input$p,
-                             mean=input$delta),
-                       input$n, input$p)
-            } else if (input$K == 2) {
-                rbind(
-                    matrix(rnorm(input$n * input$p,
-                                 mean=input$delta),
-                           input$n, input$p),
-                    matrix(rnorm(input$n * input$p,
-                                 mean=-input$delta),
-                           input$n, input$p)
-                )
-            } else {
-               rbind(
-                    matrix(rnorm(input$n * input$p,
-                                 mean = input$delta),
-                           input$n, input$p),
-                    matrix(rnorm(input$n * input$p,
-                                 mean = -input$delta),
-                           input$n, input$p),
-                    matrix(rnorm(input$n * input$p,
-                                 mean = 0),
-                           input$n, input$p)
-               )
-           }
+            simulator(input$n, input$p, input$delta,
+                      input$K, input$arr)
         )
     })
-    
-    output$raw_plot <- renderPlot({
-        plot(data()[, 1:2])
+
+    ##reactive for plotting PCA
+    pca_data <- reactive({
+        input$simulate
+        isolate(
+            prcomp(data())
+        )
     })
 
     output$pca_plot <- renderPlot({
-        pca <- prcomp(data())
-        plot(pca$x[, 1:2])
+        ggpairs(pca_data()$x[, 1:min(3, input$p)], alpha=1/2)
+    })
+
+    
+    ##reactive for plotting SHC ouput/dendrogram
+    shc_data <- reactive({
+        input$analyze
+        isolate(
+            shc(data(), input$diss, input$linkage, ci=input$ci_type)
+        )
     })
 
     output$shc_plot <- renderPlot({
-        out <- shc(data(), "euclidean", "ward.D2")
-        plot(out)
+        plot(shc_data(), alpha=input$alpha, fwer=input$fwer, ci_emp=FALSE) +
+            theme(legend.position="bottom")
     })
+
+    
     
     output$arrangements <- renderUI({
         switch(input$K,
                "1" = selectInput("arr",
-                   label = h4("Arrangement1"),
+                   label = "arrangement:",
                    choices=c("N/A"),
                    selected=("N/A")),
                "2" = selectInput("arr",
-                   label = h4("Arrangement2"),
+                   label = "arrangement:",
                    choices=c("line"),
                    selected=("line")),
                "3" = selectInput("arr",
-                   label = h4("Arrangement3"),
+                   label = "arrangement:",
                    choices=c("line", "triangle"),
                    selected=("triangle")),
                "4" = selectInput("arr",
-                   label = h4("Arrangement4"),
+                   label = "arrangement:",
                    choices=c("line", "square", "tetra", "rect"),
-                   selected=("square")),
-               "5" = selectInput("arr",
-                   label = h4("Arrangement5"),
-                   choices=c("line", "other"),
-                   selected=("other"))
+                   selected=("square"))
                )
     })
                                     

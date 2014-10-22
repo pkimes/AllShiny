@@ -1,0 +1,45 @@
+@import url("//fonts.googleapis.com/css?family=Lobster|Cabin|Oswald:200,400,700");
+
+
+h2 {
+  font-family: 'Oswald';
+  font-weight: 500;
+  line-height: 1.1;
+  color: #ad1d28;
+}
+
+body {
+  font-family: 'Oswald';
+  background-color: #ffffff;
+  color: #4c4c4c;
+  font-size: 12px;
+}
+
+code {
+  font-size: 12px;
+}
+
+label {
+  font-size: 12px;
+}
+
+button {
+  font-size: 12px;
+  width: 200px;
+}
+
+.item {
+  font-size: 12px;
+}
+
+.option {
+  font-size: 12px;
+}
+
+.selectize-control {
+  width: 100px;
+}
+
+.shiny-bound-input {
+  width: 100px;
+}
